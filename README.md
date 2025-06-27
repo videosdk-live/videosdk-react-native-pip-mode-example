@@ -1,1 +1,0 @@
-# videosdk-react-native-pip-mode-example
