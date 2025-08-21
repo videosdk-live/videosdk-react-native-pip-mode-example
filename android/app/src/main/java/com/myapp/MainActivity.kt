@@ -4,7 +4,7 @@ import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
-import com.reactnativepipandroid.PipAndroidModule
+import live.videosdk.pipmode.AndroidPipModule
 
 class MainActivity : ReactActivity() {
 
@@ -22,6 +22,11 @@ class MainActivity : ReactActivity() {
       DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 
   override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
-    PipAndroidModule.pipModeChanged(isInPictureInPictureMode)
+    AndroidPipModule.pipModeChanged(isInPictureInPictureMode)
+  }
+
+  override fun onPictureInPictureRequested(): Boolean {
+    AndroidPipModule.pipModeReq()
+    return true
   }
 }

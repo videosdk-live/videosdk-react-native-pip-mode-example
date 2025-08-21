@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef , useEffect} from 'react';
 import {
   SafeAreaView,
   TouchableOpacity,
@@ -16,7 +16,7 @@ import {
   RTCView,
 } from '@videosdk.live/react-native-sdk';
 import { createMeeting, token } from './api';
-import PipHandler, { usePipModeListener } from 'react-native-pip-android';
+import PipHandler, { usePipModeListener } from '@videosdk.live/react-native-pip-android';
 
 import { NativeModules } from 'react-native';
 import { VideoProcessor } from '@videosdk.live/react-native-webrtc';
@@ -361,13 +361,45 @@ function MeetingView() {
 export default function App() {
   const [meetingId, setMeetingId] = useState(null);
 
-  const getMeetingId = async id => {
+  const getMeetingId = async (id) => {
+    console.log('getMeetingId function called');
+    
     if (!token) {
-      console.log('PLEASE PROVIDE TOKEN IN api.js FROM app.videosdk.live');
+      console.log('Token not found, please provide token in api.js');
+    } else {
+      console.log('Token found');
     }
-    const meetingId = id == null ? await createMeeting({ token }) : id;
-    setMeetingId(meetingId);
+
+    try {
+      const meetingId = id == null ? await createMeeting({ token }) : id;
+      console.log('Meeting ID:', meetingId);
+      setMeetingId(meetingId);
+    } catch (error) {
+      console.error('Error creating meeting:', error);
+    }
   };
+
+  useEffect(() => {
+    console.log('useEffect: Setting default PiP dimensions');
+    PipHandler.setDefaultPipDimensions(300,500);
+    
+    const fetchDimensions = async () => {
+      console.log('Fetching PiP dimensions...');
+      try {
+        const dimensions = await PipHandler.getDefaultPipDimensions();
+        console.log(`PiP Dimensions - Width: ${dimensions.width}, Height: ${dimensions.height}`);
+      } catch (error) {
+        console.error('Error fetching PiP dimensions:', error);
+      }
+    };
+
+    console.log('Setting meeting screen state to true');
+    PipHandler.setMeetingScreenState(true);
+
+    fetchDimensions();
+  }, []);  // Empty dependency array ensures this effect runs once when the component mounts.
+
+  console.log('Rendering the component, meetingId:', meetingId);
 
   return meetingId ? (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F6F6FF' }}>
@@ -385,6 +417,7 @@ export default function App() {
   ) : (
     <JoinScreen
       getMeetingId={() => {
+        console.log('JoinScreen: Calling getMeetingId');
         getMeetingId();
       }}
     />
